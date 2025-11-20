@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import os
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Callable, Mapping, Optional, Protocol
 
 from .schema import TableSchema
@@ -44,6 +45,35 @@ class TransformersSQLGenerator:
         return result.strip()
 
 
+@dataclass
+class OpenAIGenerator:
+    """Wrapper around OpenAI API for robust SQL generation."""
+
+    model_name: str = "gpt-3.5-turbo"
+    api_key: Optional[str] = None
+    temperature: float = 0.0
+
+    def __post_init__(self) -> None:
+        try:
+            import openai
+        except ImportError as exc:
+            raise ImportError(
+                "OpenAIGenerator requires the 'openai' package. "
+                "Install it with `pip install openai`."
+            ) from exc
+        
+        self.client = openai.OpenAI(api_key=self.api_key or os.getenv("OPENAI_API_KEY"))
+
+    def __call__(self, prompt: str) -> str:
+        response = self.client.chat.completions.create(
+            model=self.model_name,
+            messages=[
+                {"role": "system", "content": "You are a helpful SQL assistant. Return ONLY the SQL query. Do not use markdown formatting like ```sql."},
+                {"role": "user", "content": prompt},
+            ],
+            temperature=self.temperature,
+        )
+        return response.choices[0].message.content.strip()
 def format_schema(schema: Mapping[str, TableSchema]) -> str:
     """Convert schema metadata into a textual prompt."""
 

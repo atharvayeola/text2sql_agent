@@ -13,7 +13,9 @@ def validate_sql(query: str) -> Tuple[bool, str | None]:
         return False, "The generated SQL query is empty."
 
     try:
-        sqlglot.parse_one(stripped)
+        parsed = sqlglot.parse_one(stripped)
+        if not isinstance(parsed, sqlglot.exp.Select):
+            return False, "Only SELECT statements are allowed for security reasons."
         return True, None
-    except Exception as exc:  # pragma: no cover - exercised via integration tests
+    except Exception as exc:
         return False, str(exc)

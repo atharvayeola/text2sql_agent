@@ -19,16 +19,9 @@ class TableSchema:
 def _information_schema_columns(
     connection: duckdb.DuckDBPyConnection, table: TableReference
 ) -> List[str]:
-    table_schema = table.schema or "main"
-    rows = connection.execute(
-        """
-        SELECT column_name
-        FROM information_schema.columns
-        WHERE table_schema = ? AND table_name = ?
-        ORDER BY ordinal_position
-        """,
-        [table_schema, table.name],
-    ).fetchall()
+    # Use DESCRIBE as it works reliably for both native and attached (SQLite) tables
+    rows = connection.execute(f"DESCRIBE {table.fqn}").fetchall()
+    # row[0] is column_name
     return [row[0] for row in rows]
 
 

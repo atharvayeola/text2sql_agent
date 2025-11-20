@@ -1,76 +1,85 @@
-# SQL Question Answering Agent
+# 🤖 Text2SQL Agent
 
-This repository implements a lightweight SQL question answering agent that
-follows the end-to-end roadmap provided in the prompt. The code loads
-structured data files, extracts schema information, generates SQL from natural
-language questions and executes validated queries.
+A powerful, modern, and secure **Text-to-SQL** agent that turns natural language questions into executable SQL queries. Built with **Python**, **DuckDB**, **FastAPI**, and **React**.
 
-## Features
+![App Screenshot](assets/screenshot_demo.png)
 
-- Works with SQLite databases (`.db`/`.sqlite`), CSV and JSON files
-- Uses DuckDB as the execution engine for a unified interface
-- Extracts table schemas and sample rows to build language model prompts
-- Integrates with HuggingFace text-to-SQL models (defaults to
-  `mrm8488/t5-base-finetuned-wikiSQL`)
-- Validates generated SQL with `sqlglot`
-- Retries on validation/execution errors before failing gracefully
-- Produces concise natural language answers with SQL previews
-- Includes a CLI and automated tests
+## ✨ Features
 
-## Installation
+-   **🔌 Universal Data Support**: Works instantly with **CSV**, **JSON**, and **SQLite** files.
+-   **🧠 Dual Intelligence**:
+    -   **OpenAI (GPT-3.5/4)**: For complex reasoning and production-grade accuracy.
+    -   **Local (T5)**: For offline, privacy-focused usage without API keys.
+-   **🛡️ Enterprise Security**: Strict **read-only** enforcement (SELECT only) to prevent data modification.
+-   **📊 Interactive Schema Visualization**: Automatically visualizes your database structure, relationships, and sample data.
+-   **⚡ Modern UI**: A beautiful, responsive interface built with **React**, **Tailwind CSS**, and **Framer Motion**.
+-   **🚀 High Performance**: Powered by **DuckDB** for lightning-fast query execution.
 
-Create a virtual environment (optional) and install the core dependencies:
+## 🚀 Quick Start
 
-```bash
-pip install -e .[dev]
-```
+### Prerequisites
 
-This installs runtime requirements together with the development dependency
-`pytest` for running the test suite. To enable the full LLM agent and optional
-components install the extras defined in the roadmap:
+-   Python 3.8+
+-   Node.js 16+
+-   (Optional) OpenAI API Key for best results.
+
+### 1. Clone & Install
 
 ```bash
-pip install -e .[dev,llm,embeddings,ui]
+git clone https://github.com/atharvayeola/text2sql_agent.git
+cd text2sql_agent
+
+# Install Python dependencies
+pip install -e .[dev,llm]
+pip install fastapi uvicorn openai python-dotenv duckdb pandas sqlglot
+
+# Install Frontend dependencies
+cd web
+npm install
+cd ..
 ```
 
-## Usage
+### 2. Run the Demo
 
-### Python API
-
-```python
-from text2sql_agent import (
-    TransformersSQLGenerator,
-    agent_loop,
-    answer_from_results,
-    extract_schema,
-    load_database,
-)
-
-context = load_database("/path/to/data.csv")
-schema = extract_schema(context)
-generator = TransformersSQLGenerator()
-
-response = agent_loop("How many rows are in the dataset?", schema, context, generator)
-print(response.sql)
-print(response.answer)
-```
-
-### Command Line Interface
+We provide a single script to generate test data and launch both the backend and frontend:
 
 ```bash
-python -m text2sql_agent.cli /path/to/data.csv --question "How many rows are there?"
+# (Optional) Set your OpenAI Key for smarter queries
+export OPENAI_API_KEY="sk-..."
+
+# Launch the app
+chmod +x run_demo.sh
+./run_demo.sh
 ```
 
-Run the command without `--question` to start an interactive prompt.
+The app will be available at **http://localhost:5173**.
 
-## Development
+## 📸 Screenshots
 
-Run the tests with:
+### 1. Schema Visualization
+Upon uploading a database, the agent visualizes the tables and columns, allowing you to preview data instantly.
+
+![Schema Viz](assets/screenshot_schema.png)
+
+### 2. Natural Language Querying
+Ask complex questions like *"Who are the top 5 customers by total spending?"* and get immediate answers with the generated SQL.
+
+![Query Result](assets/screenshot_query.png)
+
+## 🏗️ Architecture
+
+-   **Backend**: Python, FastAPI, DuckDB, SQLGlot.
+-   **Frontend**: React, Vite, Tailwind CSS, Framer Motion.
+-   **AI**: OpenAI API (GPT) or HuggingFace Transformers (T5).
+
+## 🧪 Testing
+
+Run the comprehensive test suite to verify functionality:
 
 ```bash
 pytest
 ```
 
-The codebase is intentionally modular so that each building block (database
-loading, schema extraction, SQL generation, validation, execution, answering)
-can be swapped or extended independently.
+## 📄 License
+
+MIT
