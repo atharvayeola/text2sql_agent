@@ -28,6 +28,28 @@ class DatabaseContext:
     connection: duckdb.DuckDBPyConnection
     tables: List[TableReference]
 
+    def execute_raw_query(self, sql: str) -> list[dict]:
+        """Execute a raw SQL query and return results as a list of dictionaries."""
+        try:
+            # DuckDB's execute returns a relation, fetchall returns list of tuples.
+            # We want a list of dicts for JSON serialization.
+            # using .df() to get pandas dataframe then to_dict might be easier but let's stick to duckdb api if possible
+            # actually .arrow() or .df() is good.
+            # Let's use fetchall and description to build dicts.
+            cursor = self.connection.execute(sql)
+            if not cursor.description:
+                return []
+            
+            columns = [desc[0] for desc in cursor.description]
+            rows = cursor.fetchall()
+            
+            result = []
+            for row in rows:
+                result.append(dict(zip(columns, row)))
+            return result
+        except Exception as e:
+            raise e
+
 
 def _register_csv(connection: duckdb.DuckDBPyConnection, path: Path) -> List[TableReference]:
     table_name = path.stem

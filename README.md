@@ -1,8 +1,8 @@
 # 🤖 Text2SQL Agent
 
-A powerful, modern, and secure **Text-to-SQL** agent that turns natural language questions into executable SQL queries. Built with **Python**, **DuckDB**, **FastAPI**, and **React**.
+A powerful, modern, and secure **Text-to-SQL** platform that turns natural language questions into executable SQL queries. Now featuring a **professional SQL Compiler** with AI-powered assistance. Built with **Python**, **DuckDB**, **FastAPI**, and **React**.
 
-![App Screenshot](assets/screenshot_demo.png)
+![Chat Interface](assets/chat_interface.png)
 
 ## ✨ Features
 
@@ -10,6 +10,8 @@ A powerful, modern, and secure **Text-to-SQL** agent that turns natural language
 -   **🧠 Dual Intelligence**:
     -   **OpenAI (GPT-3.5/4)**: For complex reasoning and production-grade accuracy.
     -   **Local (T5)**: For offline, privacy-focused usage without API keys.
+-   **💻 Professional SQL Compiler**: Full-featured SQL editor with syntax highlighting, schema browser, and AI assistance.
+-   **🤖 AI-Powered SQL Generation**: Generate SQL queries from natural language directly in the compiler.
 -   **🛡️ Enterprise Security**: Strict **read-only** enforcement (SELECT only) to prevent data modification.
 -   **📊 Interactive Schema Visualization**: Automatically visualizes your database structure, relationships, and sample data.
 -   **⚡ Modern UI**: A beautiful, responsive interface built with **React**, **Tailwind CSS**, and **Framer Motion**.
@@ -21,7 +23,7 @@ A powerful, modern, and secure **Text-to-SQL** agent that turns natural language
 
 -   Python 3.8+
 -   Node.js 16+
--   (Optional) OpenAI API Key for best results.
+-   (Optional) OpenAI API Key for AI-powered SQL generation.
 
 ### 1. Clone & Install
 
@@ -39,37 +41,38 @@ npm install
 cd ..
 ```
 
-### 2. Run the Demo
+### 2. Run the Application
 
-We provide a single script to generate test data and launch both the backend and frontend:
-
+**Terminal 1 - Backend:**
 ```bash
-# (Optional) Set your OpenAI Key for smarter queries
-export OPENAI_API_KEY="sk-..."
+cd /Users/ayeola/Downloads/text2sql_agent
+uvicorn text2sql_agent.server:app --reload
+```
 
-# Launch the app
-chmod +x run_demo.sh
-./run_demo.sh
+**Terminal 2 - Frontend:**
+```bash
+cd /Users/ayeola/Downloads/text2sql_agent/web
+npm run dev
 ```
 
 The app will be available at **http://localhost:5173**.
 
 ## 📸 Screenshots
 
-### 1. Schema Visualization
-Upon uploading a database, the agent visualizes the tables and columns, allowing you to preview data instantly.
+### 1. Chat Interface with Schema Visualization
+Ask questions in natural language and see the generated SQL, results, and database schema.
 
-![Schema Viz](assets/screenshot_schema.png)
+![Chat Interface](assets/chat_interface.png)
 
-### 2. Natural Language Querying
-Ask complex questions like *"Who are the top 5 customers by total spending?"* and get immediate answers with the generated SQL.
+### 2. SQL Compiler with AI Assistant
+Write SQL queries with syntax highlighting, browse your schema, and use AI to generate queries on the fly.
 
-![Query Result](assets/screenshot_query.png)
+![SQL Compiler](assets/compiler_interface.png)
 
 ## 🏗️ Architecture
 
 -   **Backend**: Python, FastAPI, DuckDB, SQLGlot.
--   **Frontend**: React, Vite, Tailwind CSS, Framer Motion.
+-   **Frontend**: React, Vite, Tailwind CSS, Framer Motion, Monaco Editor.
 -   **AI**: OpenAI API (GPT) or HuggingFace Transformers (T5).
 
 ## 🧪 Testing

@@ -41,6 +41,21 @@ class QueryResponse(BaseModel):
     attempts: int
     error: Optional[str] = None
 
+class ExecuteSQLRequest(BaseModel):
+    sql: str
+
+class ExecuteSQLResponse(BaseModel):
+    rows: list[dict]
+    error: Optional[str] = None
+
+class GenerateSQLRequest(BaseModel):
+    question: str
+    model_type: str = "openai"
+
+class GenerateSQLResponse(BaseModel):
+    sql: str
+    error: Optional[str] = None
+
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
     try:
@@ -91,6 +106,40 @@ async def query_agent(request: QueryRequest):
             attempts=0,
             error=str(e)
         )
+
+@app.post("/api/execute_sql", response_model=ExecuteSQLResponse)
+async def execute_sql(request: ExecuteSQLRequest):
+    if not state.context:
+        raise HTTPException(status_code=400, detail="No database loaded. Please upload a file first.")
+    
+    try:
+        rows = state.context.execute_raw_query(request.sql)
+        return ExecuteSQLResponse(rows=rows)
+    except Exception as e:
+        return ExecuteSQLResponse(rows=[], error=str(e))
+
+@app.post("/api/generate_sql", response_model=GenerateSQLResponse)
+async def generate_sql(request: GenerateSQLRequest):
+    if not state.context or not state.schema:
+        raise HTTPException(status_code=400, detail="No database loaded. Please upload a file first.")
+
+    # Initialize generator if needed
+    if request.model_type == "openai":
+        if not os.getenv("OPENAI_API_KEY"):
+             raise HTTPException(status_code=400, detail="OPENAI_API_KEY not found.")
+        if not isinstance(state.generator, OpenAIGenerator):
+            state.generator = OpenAIGenerator()
+    else:
+        if not isinstance(state.generator, TransformersSQLGenerator):
+            state.generator = TransformersSQLGenerator()
+
+    try:
+        # Use the generate_sql function from generator module
+        from .generator import generate_sql as gen_sql
+        sql = gen_sql(request.question, state.schema, state.generator)
+        return GenerateSQLResponse(sql=sql)
+    except Exception as e:
+        return GenerateSQLResponse(sql="", error=str(e))
 
 @app.get("/health")
 def health_check():

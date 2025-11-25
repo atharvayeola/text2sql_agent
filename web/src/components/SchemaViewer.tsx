@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Table as TableIcon, Key, ChevronRight, X, Database } from 'lucide-react';
+import { Table as TableIcon, Key, X, Database } from 'lucide-react';
 
 interface SchemaViewerProps {
     schema: any;

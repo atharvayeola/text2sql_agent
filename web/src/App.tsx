@@ -1,11 +1,12 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Database, MessageSquare } from 'lucide-react';
-import { ChatInput } from './components/ChatInput';
-import { FileUpload } from './components/FileUpload';
 import { AgentResponse } from './components/AgentResponse';
 import { SchemaViewer } from './components/SchemaViewer';
+import { SQLCompiler } from './components/SQLCompiler';
+import { ChatInput } from './components/ChatInput';
+import { FileUpload } from './components/FileUpload';
+import { Code, MessageSquare, Database } from 'lucide-react';
 
 // Configure axios base URL
 axios.defaults.baseURL = 'http://localhost:8000';
@@ -19,6 +20,7 @@ interface Message {
 
 function App() {
   const [hasFile, setHasFile] = useState(false);
+  const [view, setView] = useState<'chat' | 'compiler'>('chat');
   const [isUploading, setIsUploading] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [schema, setSchema] = useState<any>(null);
@@ -102,9 +104,40 @@ function App() {
             <h1 className="font-bold text-xl tracking-tight">Text2SQL Agent</h1>
           </div>
           {hasFile && (
+            <div className="flex items-center gap-2 bg-zinc-100 p-1 rounded-lg border border-zinc-200">
+              <button
+                onClick={() => setView('chat')}
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${view === 'chat'
+                  ? 'bg-white text-black shadow-sm'
+                  : 'text-zinc-500 hover:text-zinc-700'
+                  }`}
+              >
+                <div className="flex items-center gap-2">
+                  <MessageSquare size={14} />
+                  Chat
+                </div>
+              </button>
+              <button
+                onClick={() => setView('compiler')}
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${view === 'compiler'
+                  ? 'bg-white text-black shadow-sm'
+                  : 'text-zinc-500 hover:text-zinc-700'
+                  }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Code size={14} />
+                  Compiler
+                </div>
+              </button>
+            </div>
+          )}
+          {hasFile && (
             <button
-              onClick={() => setHasFile(false)}
-              className="text-sm text-zinc-500 hover:text-black transition-colors"
+              onClick={() => {
+                setHasFile(false);
+                setView('chat');
+              }}
+              className="text-sm text-zinc-500 hover:text-black transition-colors ml-4"
             >
               Change Database
             </button>
@@ -129,6 +162,16 @@ function App() {
                 </p>
               </div>
               <FileUpload onUpload={handleUpload} isUploading={isUploading} />
+            </motion.div>
+          ) : view === 'compiler' ? (
+            <motion.div
+              key="compiler"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="h-full"
+            >
+              <SQLCompiler schema={schema} />
             </motion.div>
           ) : (
             <motion.div
@@ -200,12 +243,14 @@ function App() {
         </AnimatePresence>
       </main>
 
-      {hasFile && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-zinc-50 via-zinc-50 to-transparent pt-12">
-          <ChatInput onSend={handleQuery} isLoading={isLoading} />
-        </div>
-      )}
-    </div>
+      {
+        hasFile && view === 'chat' && (
+          <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-zinc-50 via-zinc-50 to-transparent pt-12">
+            <ChatInput onSend={handleQuery} isLoading={isLoading} />
+          </div>
+        )
+      }
+    </div >
   );
 }
 
